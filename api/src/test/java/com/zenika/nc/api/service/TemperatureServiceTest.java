@@ -1,6 +1,5 @@
-package com.zenika.nc.api;
+package com.zenika.nc.api.service;
 
-import com.zenika.nc.api.service.TemperatureService;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +30,9 @@ public class TemperatureServiceTest {
     @Test
     public void getLastTemperatureData_should_emit_LAST_TEMPERATURE_in_farenheit() {
         StepVerifier.create(temperatureService.getLastTemperatureData())
-                .consumeNextWith(aTemperature ->
-                        Assertions.assertThat(aTemperature.getValue())
-                                .isEqualTo(toFahrenheit(LAST_TEMPERATURE)))
+                .consumeNextWith(aTemperature->
+                                         Assertions.assertThat(aTemperature.getValue())
+                                                 .isEqualTo(toFahrenheit(LAST_TEMPERATURE)))
                 .verifyComplete();
     }
 
@@ -49,8 +48,9 @@ public class TemperatureServiceTest {
     }
 
     @Test
-    public void generateTemperatureData_should_emit_value_every_100ms() {
-        StepVerifier.withVirtualTime(() -> temperatureService.generateTemperatureData())
+    public void generateTemperatureData_should_emit_value_every_100ms(){
+
+        StepVerifier.withVirtualTime(()->temperatureService.generateTemperatureData())
                 .expectSubscription()
                 .thenAwait(Duration.ofMillis(500))
                 .expectNextCount(5)

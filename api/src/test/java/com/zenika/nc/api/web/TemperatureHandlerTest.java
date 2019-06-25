@@ -1,9 +1,7 @@
-package com.zenika.nc.api;
+package com.zenika.nc.api.web;
 
 import com.zenika.nc.api.model.Temperature;
 import com.zenika.nc.api.service.TemperatureService;
-import com.zenika.nc.api.web.TemperatureHandler;
-import com.zenika.nc.api.web.WebConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

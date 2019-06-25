@@ -15,21 +15,12 @@ public class TemperatureService {
     /**
      * TP 1 : simulation des températures renvoyé par le capteur
      */
-    public static final Float[] LAST_TEMPERATURES = new Float[]{20.9F, 21.5F, 22.1F, 21.5F, 20.7F};
+    static final Float[] LAST_TEMPERATURES = new Float[]{20.9F, 21.5F, 22.1F, 21.5F, 20.7F};
 
     /**
      * TP 1 : simulation d'une température renvoyé par le capteur
      */
-    public static final Float LAST_TEMPERATURE = 20.7F;
-
-    private final Random random = new Random();
-
-    /**
-     * TP 1
-     */
-    public static float toFahrenheit(float celsiusTemperature) {
-        return celsiusTemperature * (9f / 5) + 32;
-    }
+    static final Float LAST_TEMPERATURE = 20.7F;
 
     /**
      * TP 1 : implémenter la méthode
@@ -57,6 +48,15 @@ public class TemperatureService {
                 .map(aLong -> generateFloat())
                 .map(aFloat -> new Temperature(aFloat, new Date(), Temperature.Unit.Celsius));
     }
+
+    /**
+     * TP 1
+     */
+    static float toFahrenheit(float celsiusTemperature) {
+        return celsiusTemperature * (9f / 5) + 32;
+    }
+
+    private final Random random = new Random();
 
     private float generateFloat() {
         final float min = 18.0F;
