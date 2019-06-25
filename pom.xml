@@ -23,6 +23,7 @@
     <modules>
         <module>api</module>
         <module>data</module>
+        <module>front</module>
     </modules>
 
     <dependencyManagement>

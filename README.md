@@ -1,52 +1,21 @@
-## Exercice 4 :
+## Exercice 5 :
 
-Nous souhaitons souscrire aux événements provenant du module API (http://localhost:8081/temperature-event) et effectuer plusieurs opérations :
- * transformer un Flux de temperature en un Flux de liste de températures 
- * calculer la temperature moyenne de cette liste  
- * persister la température moyenne en base de données
- * exposer les moyennes de temperatures stockées en base via un *Controller*  
+Nous souhaitons que notre module front affiche en temps réel les nouvelles moyennes de températures persistées.
+Pour ce faire vous allez mettre en oeuvre l'API *Processor*.  
 
-1. Le module Data dispose des dépendances suivantes  
+1. Ecrivez une classe *TemperatureProcessor* qui exposera des bean de *DirectProcessor<T>* et de *FluxSink<T>*.
 
-```xml
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
-    </dependency>
-```
-
-```xml
-    <dependency>
-        <groupId>de.flapdoodle.embed</groupId>
-        <artifactId>de.flapdoodle.embed.mongo</artifactId>
-        <version>2.2.0</version>
-    </dependency>
-```
-
-2. Ajoutez une interface *TemperatureRepository* 
-
-> Uutilisez la classe document *Temperature* à votre disposition. 
-
-3. Dans la classe *DataService* modifier la méthode `temperatureEventFlux()` afin qu'elle effectue les opérations suivantes :
-
-    31. Souscrire aux événements de `webClient.getTemperatureEvent()`
-     
-    32. Un mapping de type de *Flux<ServerSentEvent<String>>* vers *Temperature*
-    > Vous pouvez utiliser la classe *JacksonConverter*
-     
-    33. Un calcul de moyenne de température pour 10 températures 
-    > Vous pouvez utiliser la méthode `computeAverage(List<Float> floatList)`
+    On utilisera l'implémentation *DirectProcessor*, l'API expose deux méthodes permettants sa mise en oeuvre : 
     
-    34. La création d'un document mongo temperature (moyenne de temperature des 10 températures précédentes)
-    > Vous pouvez utiliser la méthode `buildDocument(Float aFloat)`
+    - `DirectProcessor.create()` : Retourne une instance de *DirectProcessor<T>* sur la quelle il est possible d'effectuer une souscription 
+    - `DirectProcessor#sink()` : Retourne une instance de *FluxSink<T>* sur la quelle permets de pousser de la donnée
+
+2. Modifier la classe MongoListener afin que cette dernière notifie le *Processor* de chaque docuement persisté
+
+3. Completez la méthode *DataController#getTemperatureEvent()* afin de souscrire au *Processor* 
+
+    > Vous pouvez chaîner l'opérateur `log()` afin d'afficher des logs sur les connexions en cours
     
-    35. La persistence en base de données
-    
-    36. Terminez d'implémenter la méthode *DataController#getAll()* afin qu'elle retourne tous les documents de la collection temperature
-    > Testez dans un navigateur que votre implémentation fonctionne via la route http://localhost:8082/all
+    > Utilisez la méthode `toServerSentEvent()`
 
-5. Terminez d'implémenter la méthode *DataController#getWithLimit()*  afin qu'elle retourne le nombre de document passé en argument.
-
-> Utilisez l'opérateur `handle()` avec un compteur afin de déclencher manuellement le `onComplete()` du flux.
-
-> Testez dans un navigateur que votre implémentation fonctionne via la route http://localhost:8082/limit/x
+4. Exécutez le front afin de vérifier le bon fonctionnement
