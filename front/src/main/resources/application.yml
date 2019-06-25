@@ -1,0 +1,5 @@
+server:
+  port: 8083
+logging:
+  level:
+    root: ${LOGGER_ROOT_LEVEL:info}
