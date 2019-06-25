@@ -22,16 +22,22 @@ public class DataWebClient {
         webClient = WebClient.create(baseUrl);
     }
 
+    public Flux<ServerSentEvent<String>> getTemperatureEvent() {
+        return webClient.get().uri("/temperature-event")
+                .retrieve()
+                .bodyToFlux(typeReference);
+    }
+
     public Flux<Temperature> getLastDatas(){
-        return Flux.empty();
+        return webClient.get().uri("/temperature/lasts")
+                .retrieve()
+                .bodyToFlux(Temperature.class);
     }
 
     public Mono<Temperature> getLastData(){
-        return Mono.empty();
-    }
-
-    public Flux<ServerSentEvent<String>> getTemperatureEvent() {
-        return Flux.empty();
+        return webClient.get().uri("/temperature/last")
+                .retrieve()
+                .bodyToMono(Temperature.class);
     }
 
 }
