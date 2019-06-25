@@ -32,7 +32,7 @@ public class TemperatureServiceTest {
     @Test
     public void getLastTemperatureData_should_emit_one_value() {
         StepVerifier.create(temperatureService.getLastTemperatureData())
-                .consumeNextWith(resultat->assertThat(resultat.getValue()).isEqualTo(LAST_TEMPERATURE))
+                .expectNextCount(1)
                 .verifyComplete();
     }
 

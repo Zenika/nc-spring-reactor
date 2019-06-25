@@ -3,7 +3,6 @@ package com.zenika.nc.api.service;
 import com.zenika.nc.api.model.Temperature;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -14,43 +13,47 @@ import java.util.Random;
 class TemperatureService {
 
     /**
-     * simulation des températures renvoyé par le capteur
+     * TP 1 : simulation des températures renvoyé par le capteur
      */
     static final Float[] LAST_TEMPERATURES = new Float[]{20.9F, 21.5F, 22.1F, 21.5F, 20.7F};
 
     /**
-     * simulation d'une température renvoyé par le capteur
+     * TP 1 : simulation d'une température renvoyé par le capteur
      */
     static final Float LAST_TEMPERATURE = 20.7F;
 
-
     /**
-     * TP1
-     * La méthode doit retourner un la valeur dans LAST_TEMPERATURE sous forme d'un Mono
+     * TP1 : implémenter la méthode
      */
-    Mono<Float> getLastTemperatureAsFloat(){
-        return Mono.empty();
+    public Mono<Float> getLastTemperatureAsFloat(){
+        return Mono.just(LAST_TEMPERATURE);
     }
 
     /**
      * TP 1 : implémenter la méthode
      */
     Mono<Temperature> getLastTemperatureData() {
-        return Mono.empty();
+        return getLastTemperatureAsFloat()
+                .map(TemperatureService::toFahrenheit)
+                .map(aFloat -> new Temperature(aFloat, new Date(), Temperature.Unit.Fahrenheit));
     }
 
     /**
      * TP 1 : implémenter la méthode
      */
     Flux<Temperature> getLastTemperatureDatas() {
-        return Flux.empty();
+        return Flux.fromArray(LAST_TEMPERATURES)
+                .map(aFloat -> new Temperature(aFloat, new Date(), Temperature.Unit.Celsius));
     }
 
     /**
      * TP 1 : implémenter la méthode
      */
     Flux<Temperature> generateTemperatureData() {
-        return Flux.empty();
+        return Flux.interval(Duration.ofMillis(100))
+                .onBackpressureDrop()
+                .map(aLong -> generateFloat())
+                .map(aFloat -> new Temperature(aFloat, new Date(), Temperature.Unit.Celsius));
     }
 
     /**
