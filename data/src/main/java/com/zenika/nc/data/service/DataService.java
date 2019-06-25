@@ -1,6 +1,8 @@
 package com.zenika.nc.data.service;
 
 import com.zenika.nc.data.model.Temperature;
+import com.zenika.nc.data.repository.TemperatureRepository;
+import com.zenika.nc.data.utils.JacksonConverter;
 import com.zenika.nc.data.web.DataWebClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,9 +17,11 @@ import java.util.List;
 public class DataService {
 
     private final DataWebClient webClient;
+    private final TemperatureRepository repository;
 
-    public DataService(DataWebClient webClient) {
+    public DataService(DataWebClient webClient, TemperatureRepository repository) {
         this.webClient = webClient;
+        this.repository = repository;
     }
 
     @PostConstruct
@@ -29,7 +33,25 @@ public class DataService {
     }
 
     private Flux<Temperature> temperatureEventFlux() {
-        return Flux.empty();
+        return webClient.getTemperatureEvent()
+
+                // map sse payload to temperature data
+                .map(JacksonConverter::deserialize)
+
+                // map object to value (float)
+                .map(Temperature::getValue)
+
+                // buffer values
+                .buffer(10)
+
+                // map values to average value
+                .map(this::computeAverage)
+
+                // map value to object
+                .map(this::buildDocument)
+
+                // save document in database
+                .flatMap(repository::save);
     }
 
     private Float computeAverage(List<Float> floatList) {
