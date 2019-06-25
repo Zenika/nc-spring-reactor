@@ -1,0 +1,7 @@
+server:
+  port: 8082
+logging:
+  level:
+    root: ${LOGGER_ROOT_LEVEL:info}
+api:
+  url: http://localhost:8081
