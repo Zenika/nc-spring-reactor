@@ -1,43 +1,111 @@
-# NightClazz Reactor / Code Lab
+## Exercice 2 :
 
-Vous avez équipé votre maison d'un capteur de température, et vous souhaitez faire un programme
-qui récupère les valeurs. 
-Pour le moment nous simulerons le capteur, en émettant simplement un flux.
+Le but de cette exercice est de migrer notre controller en annotation vers une RouterFunction.
+
+Commencez par lancer les tests d'intégration dans *TemperatureHandlerTest*. 
+
+1. Refactorisez le code pour utiliser les router function. 
+
+2. Créez une classe WebConfig pour définir vos RouterFunction
+
+```java
+    @Configuration
+    @EnableWebFlux
+    public class WebConfig implements WebFluxConfigurer {
+        
+    }
+```
+
+3. Créez des beans pour vos RouterFunction
+
+> https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-fn-router-functions
+
+Vous devez migrer 3 routes :
+
+- @GetMapping(path = "/temperature/last")
+- @GetMapping(path = "/temperature/lasts")
+- @GetMapping(path = "/temperature-event",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+
+Commencez par les tester pour vérifier que le projet fonctionne, et lancer les tests d'intégration dans `TemperatureHandlerTest`
+
+```java
+    @Bean
+    public RouterFunction<?> router() {
+        return route()
+                .path("/...", builder ->
+                        builder.nest(//
+                                accept(MediaType.ALL), builder2 -> //
+                                        builder2//
+                                                .GET("/r1", request -> temperatureHandler.getLastTemperatureData())
+                                                .GET("/r2", request -> temperatureHandler...())
+                                                .build()
+                        ))
+                .before(this::logRequest)
+                .build();
+    }
+
+    @Bean
+    public RouterFunction<?> routerSSE() {
+        return route()
+                .GET("/r3", request -> temperatureHandler.getTemperatureData())
+                .build();
+    }
+```
+
+* Transformez la classe TemperatureHandler pour que vos méthodes retourne des Mono<ServerResponse>
+
+Voici un exemple basique :
+
+```java
+    public Mono<ServerResponse> getLastTemperatureData() {
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(temperatureService.getLastTemperatureData(), Temperature.class);
+    }
+```
+Cet exemple fonctionne, mais ne gère pas le cas ou notre méthode ne renvoie aucune valeur. Voici un autre exemple :
+
+```java
+    public Mono<ServerResponse> demo2() {
+        return temperatureService.getLastTemperatureData()
+                .flatMap(res -> ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(fromObject(res)))
+                .switchIfEmpty(notFound().build());
+    }
+```
+
+* Vous pouvez également gérer le cas où votre publisher vous renvoie un signal d'erreur :
+
+```java
+    public Mono<ServerResponse> demoWithError() {
+        return temperatureService.getLastTemperatureData()
+                .flatMap(res -> ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(fromObject(res)))
+                .doOnError(res->ServerResponse.status(500).build())
+                .switchIfEmpty(notFound().build());
+    }
+```
 
 
+* Le test d'intrégation doit toujours fonctionner, néanmoins vous allez devoir rajouter votre classe de configuration dans la configuration de votre test :
 
-## Exercice 1 :
+```java
+     @RunWith(SpringRunner.class)
+     @WebFluxTest(TemperatureHandler.class)
+     @ContextConfiguration(classes = {
+             TemperatureHandler.class,
+             TemperatureService.class,
+             WebConfig.class
+     })
+     public class TemperatureHandlerTest {
+     }
+ ```
 
-1.
 
-> Créer un Mono ou un Flux à partir d'une valeur : https://projectreactor.io/docs/core/release/reference/#_simple_ways_to_create_a_flux_or_mono_and_subscribe_to_it
+4. / Améliorer vos routerFunction
 
-> Transformer une valeur : https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html#map-java.util.function.Function-
+Rajoutez la méthode .before() dans vos router function pour logguer toutes les requêtes entrante
 
-Lancez les tests dans `TemperatureServiceTest`.
 
-- Implémentez la méthode `getLastTemperatureAsFloat` pour qu'elle retourne la température dans un Mono
-*Le test `getLastTemperatureAsFloat_should_emit_LAST_TEMPERATURE` devrait réussir.*
-
-- Implémentez la méthode `getLastTemperatureData` pour qu'elle souscrive au Publisher renvoyé par `getLastTemperatureAsFloat`
-et transforme le résultat émis en Temperature.
- *Le test `getLastTemperatureData_should_emit_one_value` devrait réussir.*
-
-- Complétez la méthode `getLastTemperatureData` pour qu'elle transforme la température en farenheit. 
-*Le test `getLastTemperatureData_should_emit_LAST_TEMPERATURE_in_farenheit()` devrait réussir.*
-
-> Vous aurez besoin de transformer votre température avec la méthode `toFahrenheit`
-
-2.
-
-- Complétez la méthode `getLastTemperatureDatas` pour qu'elle retourne un Flux de TemperatureData
-*Le test `getLastTemperatureDatas_should_emit_all_temperatures` devrait réussir.*
-
-> Les valeurs des températures sont dans LAST_TEMPERATURES
-
-3.
-
-- Complétez la méthode `generateTemperatureData` pour qu'elle retourne un flux infini de `TemperatureData`. Cette méthode doit émettre un élément toutes les 100ms. 
-
-> Vous aurez besoin de l'opérateur Flux.interval() pour générer le Flux
-> Vous pouvez utiliser la méthode `generateFloat()`

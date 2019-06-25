@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Random;
 
 @Component
-class TemperatureService {
+public class TemperatureService {
 
     /**
      * TP 1 : simulation des températures renvoyé par le capteur
@@ -32,7 +32,7 @@ class TemperatureService {
     /**
      * TP 1 : implémenter la méthode
      */
-    Mono<Temperature> getLastTemperatureData() {
+    public Mono<Temperature> getLastTemperatureData() {
         return getLastTemperatureAsFloat()
                 .map(TemperatureService::toFahrenheit)
                 .map(aFloat -> new Temperature(aFloat, new Date(), Temperature.Unit.Fahrenheit));
@@ -41,7 +41,7 @@ class TemperatureService {
     /**
      * TP 1 : implémenter la méthode
      */
-    Flux<Temperature> getLastTemperatureDatas() {
+    public Flux<Temperature> getLastTemperatureDatas() {
         return Flux.fromArray(LAST_TEMPERATURES)
                 .map(aFloat -> new Temperature(aFloat, new Date(), Temperature.Unit.Celsius));
     }
@@ -49,7 +49,7 @@ class TemperatureService {
     /**
      * TP 1 : implémenter la méthode
      */
-    Flux<Temperature> generateTemperatureData() {
+    public Flux<Temperature> generateTemperatureData() {
         return Flux.interval(Duration.ofMillis(100))
                 .onBackpressureDrop()
                 .map(aLong -> generateFloat())
