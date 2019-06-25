@@ -27,7 +27,7 @@ import java.util.List;
 @ContextConfiguration(classes = {
 		TemperatureHandler.class,
 		TemperatureService.class,
-		WebConfig.class
+//		WebConfig.class
 })
 public class TemperatureHandlerTest {
 

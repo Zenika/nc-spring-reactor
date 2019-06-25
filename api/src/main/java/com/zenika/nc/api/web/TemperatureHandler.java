@@ -3,11 +3,12 @@ package com.zenika.nc.api.web;
 import com.zenika.nc.api.model.Temperature;
 import com.zenika.nc.api.service.TemperatureService;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Component
+@RestController
 public class TemperatureHandler {
 
 	private TemperatureService temperatureService;
@@ -16,21 +17,18 @@ public class TemperatureHandler {
 		this.temperatureService = temperatureService;
 	}
 
-	public Mono<ServerResponse> getLastTemperatureData() {
-		return ServerResponse.ok()
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(temperatureService.getLastTemperatureData(), Temperature.class);
+	@GetMapping(path = "/temperature/last")
+	public Mono<Temperature> getLastTemperatureData() {
+		return temperatureService.getLastTemperatureData();
 	}
 
-	public Mono<ServerResponse> getLastTemperatureDatas() {
-		return ServerResponse.ok()
-				.contentType(MediaType.TEXT_EVENT_STREAM)
-				.body(temperatureService.getLastTemperatureDatas(), Temperature.class);
+	@GetMapping(path = "/temperature/lasts")
+	public Flux<Temperature> getLastTemperatureDatas() {
+		return temperatureService.getLastTemperatureDatas();
 	}
 
-	public Mono<ServerResponse> getTemperatureData() {
-		return ServerResponse.ok()
-				.contentType(MediaType.TEXT_EVENT_STREAM)
-				.body(temperatureService.generateTemperatureData(),Temperature.class);
+	@GetMapping(path = "/temperature-event",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<Temperature> getTemperatureData() {
+		return temperatureService.generateTemperatureData();
 	}
 }
