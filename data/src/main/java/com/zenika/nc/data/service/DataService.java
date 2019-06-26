@@ -7,6 +7,8 @@ import com.zenika.nc.data.web.DataWebClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
@@ -16,57 +18,61 @@ import java.util.List;
 @Slf4j
 public class DataService {
 
-    private final DataWebClient webClient;
-    private final TemperatureRepository repository;
+	private final DataWebClient webClient;
 
-    public DataService(DataWebClient webClient, TemperatureRepository repository) {
-        this.webClient = webClient;
-        this.repository = repository;
-    }
+	private final TemperatureRepository repository;
 
-    @PostConstruct
-    private void init() {
-        // call web client route
-        temperatureEventFlux()
-                // subscribe to sse channel
-                .subscribe(temperatureData -> System.out.println(temperatureData.toString()), Throwable::printStackTrace);
-    }
+	public DataService(DataWebClient webClient, TemperatureRepository repository) {
+		this.webClient = webClient;
+		this.repository = repository;
+	}
 
-    private Flux<Temperature> temperatureEventFlux() {
-        return webClient.getTemperatureEvent()
+	@PostConstruct
+	private void init() {
+		// call web client route
+		temperatureEventFlux()
+				// subscribe to sse channel
+				.subscribe(temperatureData -> System.out.println(temperatureData.toString()), Throwable::printStackTrace);
+	}
 
-                // map sse payload to temperature data
-                .map(JacksonConverter::deserialize)
+	private Flux<Temperature> temperatureEventFlux() {
+		return webClient.getTemperatureEvent()
 
-                // map object to value (float)
-                .map(Temperature::getValue)
+				// map sse payload to temperature data
+				.map(JacksonConverter::deserialize)
 
-                // buffer values
-                .buffer(10)
+				// map object to value (float)
+				.map(Temperature::getValue)
 
-                // map values to average value
-                .map(this::computeAverage)
+				// buffer values
+				.buffer(10)
 
-                // map value to object
-                .map(this::buildDocument)
+				// map values to average value
+				.map(this::computeAverage)
 
-                // save document in database
-                .flatMap(repository::save);
-    }
+				// map value to object
+				.map(this::buildDocument)
 
-    private Float computeAverage(List<Float> floatList) {
-        float sum = 0;
-        for (Float listTemperatureData : floatList) {
-            sum += listTemperatureData;
-        }
-        return sum / 10;
-    }
+				// save document in database
+				.flatMap(repository::save);
+	}
 
-    private Temperature buildDocument(Float aFloat) {
-        return Temperature.builder()
-                .date(new Date())
-                .value(aFloat)
-                .unit(Temperature.Unit.Celsius)
-                .build();
-    }
+	public Flux<Tuple2<Temperature, Integer>> getTemperatureAndHumidity() {
+		return webClient.getTemperatureEvent()
+				.map(JacksonConverter::deserialize)
+				.zipWith(webClient.getHumidity()
+				.onErrorReturn(Integer.valueOf(0)));
+	}
+
+	private Float computeAverage(List<Float> floatList) {
+		float sum = 0;
+		for (Float listTemperatureData : floatList) {
+			sum += listTemperatureData;
+		}
+		return sum / 10;
+	}
+
+	private Temperature buildDocument(Float aFloat) {
+		return Temperature.builder().date(new Date()).value(aFloat).unit(Temperature.Unit.Celsius).build();
+	}
 }

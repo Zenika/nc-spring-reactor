@@ -40,4 +40,10 @@ public class DataWebClient {
                 .bodyToMono(Temperature.class);
     }
 
+    public Flux<Integer> getHumidity(){
+        return webClient.get().uri("/humidity")
+                .retrieve()
+                .bodyToFlux(Integer.class);
+    }
+
 }
