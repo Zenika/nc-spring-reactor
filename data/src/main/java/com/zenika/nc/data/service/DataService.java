@@ -58,10 +58,7 @@ public class DataService {
 	}
 
 	public Flux<Tuple2<Temperature, Integer>> getTemperatureAndHumidity() {
-		return webClient.getTemperatureEvent()
-				.map(JacksonConverter::deserialize)
-				.zipWith(webClient.getHumidity()
-				.onErrorReturn(Integer.valueOf(0)));
+		return Flux.empty();
 	}
 
 	private Float computeAverage(List<Float> floatList) {
