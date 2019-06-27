@@ -1,7 +1,7 @@
 # NightClazz Reactor / Code Lab
 
 Vous avez équipé votre maison d'un capteur de température, et vous souhaitez faire un programme
-qui récupère les valeurs. 
+qui récupère ses valeurs.
 Pour le moment nous simulerons le capteur, en émettant simplement un flux.
 
 
@@ -21,9 +21,9 @@ Lancez les tests dans `TemperatureServiceTest`.
 
 - Implémentez la méthode `getLastTemperatureData` pour qu'elle souscrive au Publisher renvoyé par `getLastTemperatureAsFloat`
 et transforme le résultat émis en Temperature.
- *Le test `getLastTemperatureData_should_emit_one_value` devrait réussir.*
+*Le test `getLastTemperatureData_should_emit_one_value` devrait réussir.*
 
-- Complétez la méthode `getLastTemperatureData` pour qu'elle transforme la température en farenheit. 
+- Complétez la méthode `getLastTemperatureData` pour qu'elle transforme la température en farenheit.
 *Le test `getLastTemperatureData_should_emit_LAST_TEMPERATURE_in_farenheit()` devrait réussir.*
 
 > Vous aurez besoin de transformer votre température avec la méthode `toFahrenheit`
