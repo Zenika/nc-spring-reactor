@@ -1,12 +1,12 @@
 ## Exercice 2 :
 
-Le but de cette exercice est de migrer notre controller en annotation vers une RouterFunction.
+Le but de cet exercice est de migrer notre controller en annotation vers une RouterFunction.
 
-Commencez par lancer les tests d'intégration dans *TemperatureHandlerTest*. 
+Commencez par lancer les tests d'intégration dans *TemperatureHandlerTest*.
 
-1. Refactorisez le code pour utiliser les router function. 
+1. Refactorisez le code pour utiliser les router functions.
 
-2. Créez une classe WebConfig pour définir vos RouterFunction
+1.1. Créez une classe WebConfig pour définir vos RouterFunction
 
 ```java
     @Configuration
@@ -16,7 +16,7 @@ Commencez par lancer les tests d'intégration dans *TemperatureHandlerTest*.
     }
 ```
 
-3. Créez des beans pour vos RouterFunction
+1.2. Créez des beans pour vos RouterFunction
 
 > https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-fn-router-functions
 
@@ -26,7 +26,7 @@ Vous devez migrer 3 routes :
 - @GetMapping(path = "/temperature/lasts")
 - @GetMapping(path = "/temperature-event",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 
-Commencez par les tester pour vérifier que le projet fonctionne, et lancer les tests d'intégration dans `TemperatureHandlerTest`
+Commencez par les tester pour vérifier que le projet fonctionne, et lancez les tests d'intégration dans `TemperatureHandlerTest`
 
 ```java
     @Bean
@@ -52,7 +52,7 @@ Commencez par les tester pour vérifier que le projet fonctionne, et lancer les 
     }
 ```
 
-* Transformez la classe TemperatureHandler pour que vos méthodes retourne des Mono<ServerResponse>
+2. Transformez la classe TemperatureHandler pour que vos méthodes retournent des `Mono<ServerResponse>`.
 
 Voici un exemple basique :
 
@@ -63,7 +63,7 @@ Voici un exemple basique :
                 .body(temperatureService.getLastTemperatureData(), Temperature.class);
     }
 ```
-Cet exemple fonctionne, mais ne gère pas le cas ou notre méthode ne renvoie aucune valeur. Voici un autre exemple :
+Cet exemple fonctionne, mais ne gère pas le cas où notre méthode ne renvoie aucune valeur. Voici un autre exemple :
 
 ```java
     public Mono<ServerResponse> demo2() {
@@ -89,7 +89,7 @@ Cet exemple fonctionne, mais ne gère pas le cas ou notre méthode ne renvoie au
 ```
 
 
-* Le test d'intrégation doit toujours fonctionner, néanmoins vous allez devoir rajouter votre classe de configuration dans la configuration de votre test :
+* Le test d'intégration doit toujours fonctionner, néanmoins vous allez devoir ajouter votre classe de configuration dans la configuration de votre test :
 
 ```java
      @RunWith(SpringRunner.class)
@@ -104,8 +104,8 @@ Cet exemple fonctionne, mais ne gère pas le cas ou notre méthode ne renvoie au
  ```
 
 
-4. / Améliorer vos routerFunction
+3. Améliorez vos routerFunction
 
-Rajoutez la méthode .before() dans vos router function pour logguer toutes les requêtes entrante
+Ajoutez la méthode `.before()` dans vos router functions pour logguer toutes les requêtes entrantes.
 
 
