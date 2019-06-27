@@ -27,7 +27,7 @@ Nous souhaitons souscrire aux événements provenant du module API (http://local
 
 > Uutilisez la classe document *Temperature* à votre disposition. 
 
-3. Dans la classe *DataService* modifier la méthode `temperatureEventFlux()` afin qu'elle effectue les opérations suivantes :
+3. Dans la classe *DataService* modifiez la méthode `temperatureEventFlux()` afin qu'elle effectue les opérations suivantes :
 
     31. Souscrire aux événements de `webClient.getTemperatureEvent()`
      
