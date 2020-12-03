@@ -5,22 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.FluxSink;
+
+import reactor.core.publisher.Sinks;
 
 @Component
 @Slf4j
 public class MongoListener extends AbstractMongoEventListener<Temperature> {
 
-    private final FluxSink<Temperature> senderIncoming;
+    private final Sinks.Many<Temperature> temperatureMulticast;
 
-    public MongoListener(FluxSink<Temperature> senderIncoming) {
-        this.senderIncoming = senderIncoming;
+    public MongoListener(Sinks.Many<Temperature> temperatureMulticast) {
+        this.temperatureMulticast = temperatureMulticast;
     }
 
     @Override
     public void onAfterSave(AfterSaveEvent<Temperature> event) {
         log.info("onAfterSave event: " + event.toString());
-        senderIncoming.next(event.getSource());
+        temperatureMulticast.tryEmitNext(event.getSource());
         super.onAfterSave(event);
     }
 }

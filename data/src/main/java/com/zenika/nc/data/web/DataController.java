@@ -8,7 +8,6 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.DirectProcessor;
 
 import java.time.LocalTime;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,12 +17,12 @@ public class DataController {
 
     private final TemperatureRepository temperatureDataRepository;
     private final DataWebClient webClient;
-    private final DirectProcessor<Temperature> senderProcessor;
+    private final Flux<Temperature> temperatureMulticastFlux;
 
-    public DataController(TemperatureRepository temperatureDataRepository, DataWebClient webClient, DirectProcessor<Temperature> senderProcessor) {
+    public DataController(TemperatureRepository temperatureDataRepository, DataWebClient webClient, Flux<Temperature> temperatureMulticastFlux) {
         this.temperatureDataRepository = temperatureDataRepository;
         this.webClient = webClient;
-        this.senderProcessor = senderProcessor;
+        this.temperatureMulticastFlux = temperatureMulticastFlux;
     }
 
     @GetMapping(path = "all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -46,7 +45,7 @@ public class DataController {
 
     @GetMapping(path = "event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> getTemperatureEvent() {
-        return senderProcessor
+        return temperatureMulticastFlux
                 .log()
                 // map object to json payload
                 .map(JacksonConverter::serialize)
