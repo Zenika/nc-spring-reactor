@@ -3,20 +3,20 @@ package com.zenika.nc.data.utils;
 import com.zenika.nc.data.model.Temperature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.DirectProcessor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 @Configuration
 public class TemperatureProcessor {
 
     @Bean
-    DirectProcessor<Temperature> senderProcessor() {
-        return DirectProcessor.create();
+    Sinks.Many<Temperature> temperatureMulticast() {
+        return Sinks.many().multicast().directAllOrNothing();
     }
 
     @Bean
-    FluxSink<Temperature> senderIncoming() {
-        return senderProcessor().sink();
+    Flux<Temperature> temperatureMulticastFlux() {
+        return temperatureMulticast().asFlux();
     }
 
 }
